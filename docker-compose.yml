@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: "${APP_NAME}-db"
+    restart: always
+    environment:
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_DB: thirstyPlants_db
+      PGPORT: "${DB_PORT}"
+    ports:
+      - "${DB_PORTS}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bajerlukascz_network
+
+  be:
+    build: ./backend
+    container_name: "${APP_NAME}-be"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "${BE_PORTS}"
+    restart: always
+    networks:
+      - bajerlukascz_network
+    command: [ "java", "-jar", "app.jar" ]
+
+volumes:
+  postgres_data:
+
+
+networks:
+  bajerlukascz_network:
+    external: true

@@ -1,0 +1,41 @@
+app:
+  jwt:
+    secret: "eC4mS38xW9aX63zPq9bTzE89nFjwB1LmTzUvW4zMdpQ2vNsP7yWhNfpZJ8E7CtQx"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+  security:
+    user:
+      name: admin
+      password: admin
+
+  sql:
+    init:
+      mode: always
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /flowercare/api
