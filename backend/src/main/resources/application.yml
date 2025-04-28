@@ -38,4 +38,4 @@ springdoc:
 server:
   port: 8080
   servlet:
-    context-path: /flowercare/api
+    context-path: /thirstyPlants/api
