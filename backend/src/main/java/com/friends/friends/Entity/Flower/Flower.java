@@ -20,6 +20,9 @@ public class Flower {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = true)
+    private String cloudflareImageId = null;
+
     @Column(nullable = false)
     private String name;
 

@@ -47,6 +47,11 @@ public class DataInitializer implements CommandLineRunner {
 
         Flower sunflower = new Flower("sunflower", pce);
         sunflower.setWatter(ZonedDateTime.now().minusDays(3));
+
+        Flower monstera = new Flower("Monstera", pce);
+        monstera.setWatter(ZonedDateTime.now().minusDays(3));
+        monstera.setCloudflareImageId("4b54e654-85bb-4ae3-383e-bf6e7f554c00");
+
         Flower mint = new Flower("mint", pce);
 
         // přiřazení homes a accounts
@@ -65,6 +70,7 @@ public class DataInitializer implements CommandLineRunner {
         // ulož květiny (už mají existující home s ID)
         flowerRepository.save(sunflower);
         flowerRepository.save(mint);
+        flowerRepository.save(monstera);
 
         // ulož admina
         accountRepository.save(admin);

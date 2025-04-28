@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 @Setter
 public class FlowerResponseDTO {
     private int id;
+    private String cloudflareImageId;
     private String name;
     private boolean needWatter;
 
@@ -20,6 +21,7 @@ public class FlowerResponseDTO {
     public static FlowerResponseDTO fromEntity(Flower flower) {
         FlowerResponseDTO dto = new FlowerResponseDTO();
         dto.setId(flower.getId().intValue());
+        dto.setCloudflareImageId(flower.getCloudflareImageId());
         dto.setName(flower.getName());
         dto.setNeedWatter(calculateIfNeedWatter(flower.getWatter()));
         return dto;

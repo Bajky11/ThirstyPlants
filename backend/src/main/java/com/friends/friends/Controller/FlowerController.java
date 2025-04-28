@@ -8,6 +8,7 @@ import com.friends.friends.Entity.Home.Home;
 import com.friends.friends.Repository.FlowerRepository;
 import com.friends.friends.Repository.HomeRepository;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class FlowerController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> addFlower(@RequestBody addFlowerRequestDTO request) {
+    public ResponseEntity<Void> addFlower(@Valid @RequestBody addFlowerRequestDTO request) {
         Optional<Home> home = homeRepository.findById(request.getHomeId());
 
         if (home.isEmpty()) {
@@ -42,6 +43,10 @@ public class FlowerController {
         }
 
         Flower flower = new Flower(request.getName(), home.get());
+        if(request.getCloudflareImageId() != null){
+            flower.setCloudflareImageId(request.getCloudflareImageId());
+        }
+
         flowerRepository.save(flower);
         return ResponseEntity.ok().build();
     }
@@ -82,6 +87,19 @@ public class FlowerController {
 
         flowerRepository.save(flower);
 
+        return ResponseEntity.ok().build();
+    }
+
+    // TODO: Remove flower image from image storage
+    @DeleteMapping()
+    public ResponseEntity<Void> deleteFlower(@RequestParam Long flowerId) {
+        Optional<Flower> flower = flowerRepository.findById(flowerId);
+
+        if (flower.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        flowerRepository.delete(flower.get());
         return ResponseEntity.ok().build();
     }
 }

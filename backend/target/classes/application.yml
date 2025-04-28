@@ -4,7 +4,7 @@ app:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5434/postgres
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
@@ -38,4 +38,4 @@ springdoc:
 server:
   port: 8080
   servlet:
-    context-path: /flowercare/api
+    context-path: /thirstyPlants/api

@@ -14,4 +14,6 @@ public class addFlowerRequestDTO {
 
     @NotNull(message = "Home id can not be null.")
     private Long homeId;
+
+    private String cloudflareImageId;
 }

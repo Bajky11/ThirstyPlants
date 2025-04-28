@@ -10,6 +10,5 @@ import java.time.ZonedDateTime;
 @Setter
 public class updateFlowerDTO {
     private String name;
-
     private ZonedDateTime watter;
 }
