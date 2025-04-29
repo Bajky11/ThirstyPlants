@@ -42,8 +42,9 @@ public class FlowerController {
             return ResponseEntity.notFound().build();
         }
 
-        Flower flower = new Flower(request.getName(), home.get());
-        if(request.getCloudflareImageId() != null){
+        Flower flower = new Flower(request.getName(), request.getWateringFrequencyDays(), home.get());
+
+        if (request.getCloudflareImageId() != null) {
             flower.setCloudflareImageId(request.getCloudflareImageId());
         }
 
@@ -62,10 +63,7 @@ public class FlowerController {
             return ResponseEntity.notFound().build();
         }
 
-        List<FlowerResponseDTO> homeFlowers = flowerRepository.findByHomeId(homeId)
-                .stream()
-                .map(FlowerResponseDTO::fromEntity)
-                .toList();
+        List<FlowerResponseDTO> homeFlowers = flowerRepository.findByHomeId(homeId).stream().map(FlowerResponseDTO::fromEntity).toList();
 
         return ResponseEntity.ok(homeFlowers);
     }
@@ -73,16 +71,13 @@ public class FlowerController {
     @PatchMapping()
     public ResponseEntity<Void> patchFlower(@RequestParam Long flowerId, @Valid @RequestBody updateFlowerDTO request) {
         Flower flower = flowerRepository.findById(flowerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        System.out.println("UPDATING");
+
         if (request.getName() != null) {
             flower.setName(request.getName());
         }
 
         if (request.getWatter() != null) {
-            System.out.println("Updating watter to: " + request.getWatter());
             flower.setWatter(request.getWatter());
-        } else {
-            System.out.println("Request watter is null - not updating.");
         }
 
         flowerRepository.save(flower);

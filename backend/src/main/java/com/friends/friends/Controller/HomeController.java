@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +22,6 @@ public class HomeController {
     public HomeController(CurrentUserService currentUserService, HomeRepository homeRepository) {
         this.currentUserService = currentUserService;
         this.homeRepository = homeRepository;
-    }
-
-    @PostMapping("/health")
-    public ResponseEntity<Void> health() {
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping()

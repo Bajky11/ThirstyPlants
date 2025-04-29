@@ -33,6 +33,8 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         Account admin = new Account("admin", passwordEncoder.encode("admin"));
+        Account user = new Account("user", passwordEncoder.encode("user"));
+
         Home pce = new Home("Pardubice");
         Home na = new Home("Nachod");
         Home nohr = new Home("Novy Hradek");
@@ -45,14 +47,14 @@ public class DataInitializer implements CommandLineRunner {
         homeRepository.save(nohr);
         homeRepository.save(byst);
 
-        Flower sunflower = new Flower("sunflower", pce);
+        Flower sunflower = new Flower("sunflower",1, pce);
         sunflower.setWatter(ZonedDateTime.now().minusDays(3));
 
-        Flower monstera = new Flower("Monstera", pce);
+        Flower monstera = new Flower("Monstera",1, pce);
         monstera.setWatter(ZonedDateTime.now().minusDays(3));
         monstera.setCloudflareImageId("4b54e654-85bb-4ae3-383e-bf6e7f554c00");
 
-        Flower mint = new Flower("mint", pce);
+        Flower mint = new Flower("mint",1, pce);
 
         // přiřazení homes a accounts
         admin.getHomes().add(pce);
@@ -74,6 +76,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ulož admina
         accountRepository.save(admin);
+        accountRepository.save(user);
     }
 }
 

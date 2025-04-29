@@ -16,4 +16,7 @@ public class addFlowerRequestDTO {
     private Long homeId;
 
     private String cloudflareImageId;
+
+    @NotNull(message = "WateringFrequencyDays id can not be null.")
+    private int wateringFrequencyDays;
 }
