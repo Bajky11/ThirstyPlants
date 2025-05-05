@@ -25,6 +25,10 @@ public class Home {
     @Column(nullable = false)
     private String name;
 
+    @ManyToOne(optional = false)
+    @JsonIgnore
+    private Account owner;
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(
@@ -34,7 +38,8 @@ public class Home {
     )
     private Set<Account> accounts = new HashSet<>();
 
-    public Home(String name){
+    public Home(String name, Account owner) {
         this.name = name;
+        this.owner = owner;
     }
 }

@@ -9,6 +9,7 @@ import com.friends.friends.Repository.HomeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -18,65 +19,75 @@ import java.util.ArrayList;
 public class DataInitializer implements CommandLineRunner {
 
     private final AccountRepository accountRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final HomeRepository homeRepository;
     private final FlowerRepository flowerRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(AccountRepository accountRepository, BCryptPasswordEncoder passwordEncoder, HomeRepository homeRepository, FlowerRepository flowerRepository) {
+    public DataInitializer(AccountRepository accountRepository, HomeRepository homeRepository, FlowerRepository flowerRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
-        this.passwordEncoder = passwordEncoder;
         this.homeRepository = homeRepository;
         this.flowerRepository = flowerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
+
+        boolean enableInitialization = true;
+        if (!enableInitialization) return;
+
+        // 1. vytvoř účty
         Account admin = new Account("admin", passwordEncoder.encode("admin"));
-        Account user = new Account("user", passwordEncoder.encode("user"));
 
-        Home pce = new Home("Pardubice");
-        Home na = new Home("Nachod");
-        Home nohr = new Home("Novy Hradek");
-        Home byst = new Home("Bystre");
+        Account test1 = new Account("test1", passwordEncoder.encode("test"));
+        Account test2 = new Account("test2", passwordEncoder.encode("test"));
 
 
-        // nejdřív ulož home, aby mělo ID
+        // 2. nejprve ulož admina (nutné kvůli Home.owner!)
+        accountRepository.save(admin);
+        accountRepository.save(test1);
+        accountRepository.save(test2);
+
+        // 3. vytvoř Home a nastav vlastníka (už uloženého)
+        Home pce = new Home("Pardubice", admin);
+        Home na = new Home("Nachod", admin);
+        Home nohr = new Home("Novy Hradek", admin);
+        Home byst = new Home("Bystre", admin);
+
+        // 4. ulož domácnosti
         homeRepository.save(pce);
         homeRepository.save(na);
         homeRepository.save(nohr);
         homeRepository.save(byst);
 
-        Flower sunflower = new Flower("sunflower",1, pce);
+        // 5. nastav sdílení domácností
+        pce.getAccounts().add(admin);
+        na.getAccounts().add(admin);
+        nohr.getAccounts().add(admin);
+        byst.getAccounts().add(admin);
+
+        admin.getHomes().add(pce);
+        admin.getHomes().add(na);
+        admin.getHomes().add(nohr);
+        admin.getHomes().add(byst);
+
+        // 6. květiny
+        Flower sunflower = new Flower("sunflower", 1, pce);
         sunflower.setWatter(ZonedDateTime.now().minusDays(3));
 
-        Flower monstera = new Flower("Monstera",1, pce);
+        Flower monstera = new Flower("Monstera", 1, pce);
         monstera.setWatter(ZonedDateTime.now().minusDays(3));
         monstera.setCloudflareImageId("4b54e654-85bb-4ae3-383e-bf6e7f554c00");
 
-        Flower mint = new Flower("mint",1, pce);
+        Flower mint = new Flower("mint", 1, pce);
 
-        // přiřazení homes a accounts
-        admin.getHomes().add(pce);
-        pce.getAccounts().add(admin);
-
-        admin.getHomes().add(na);
-        na.getAccounts().add(admin);
-
-        admin.getHomes().add(nohr);
-        nohr.getAccounts().add(admin);
-
-        admin.getHomes().add(byst);
-        byst.getAccounts().add(admin);
-
-        // ulož květiny (už mají existující home s ID)
         flowerRepository.save(sunflower);
-        flowerRepository.save(mint);
         flowerRepository.save(monstera);
+        flowerRepository.save(mint);
 
-        // ulož admina
+        // 7. znovu ulož admina s napojenými homes
         accountRepository.save(admin);
-        accountRepository.save(user);
     }
 }
 

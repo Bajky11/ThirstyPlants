@@ -1,6 +1,6 @@
 package com.friends.friends.Controller;
 
-import com.friends.friends.Config.JwtUtil;
+import com.friends.friends.Config.JwtService;
 import com.friends.friends.Entity.Account.Account;
 import com.friends.friends.Entity.Account.RequestDTO.AccountLoginRequestDTO;
 import com.friends.friends.Entity.Account.RequestDTO.AccountRegisterRequestDTO;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -20,17 +21,17 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final BCryptPasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
-    private final JwtUtil jwtUtil;
 
     @Autowired
     private CurrentUserService currentUserService;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public AuthController(BCryptPasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtil jwtUtil) {
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/health")
@@ -41,6 +42,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AccountRegisterRequestDTO request) {
         Optional<Account> accountOptional = accountRepository.findByEmail(request.getEmail());
+
         if (accountOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Účet s tímto e-mailem již existuje.");
         }
@@ -51,13 +53,14 @@ public class AuthController {
         );
 
         accountRepository.save(account);
-        String token = jwtUtil.generateToken(account.getId());
+        String token = jwtService.generateToken(account.getId());
         return ResponseEntity.ok(new AccountResponseDTO(account, token));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AccountLoginRequestDTO request) {
         Optional<Account> accountOptional = accountRepository.findByEmail(request.getEmail());
+
         if (accountOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Účet s tímto e-mailem neexistuje.");
         }
@@ -68,7 +71,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nesprávné heslo.");
         }
 
-        String token = jwtUtil.generateToken(account.getId());
+        String token = jwtService.generateToken(account.getId());
         return ResponseEntity.ok(new AccountResponseDTO(account, token));
     }
 
