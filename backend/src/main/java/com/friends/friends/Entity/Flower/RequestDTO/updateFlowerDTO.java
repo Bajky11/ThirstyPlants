@@ -11,4 +11,5 @@ import java.time.ZonedDateTime;
 public class updateFlowerDTO {
     private String name;
     private ZonedDateTime watter;
+    private Integer wateringFrequencyDays;
 }
