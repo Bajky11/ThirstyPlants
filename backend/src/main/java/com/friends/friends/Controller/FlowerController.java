@@ -80,6 +80,10 @@ public class FlowerController {
             flower.setWatter(request.getWatter());
         }
 
+        if(request.getWateringFrequencyDays() != null){
+            flower.setWateringFrequencyDays(request.getWateringFrequencyDays());
+        }
+
         flowerRepository.save(flower);
 
         return ResponseEntity.ok().build();

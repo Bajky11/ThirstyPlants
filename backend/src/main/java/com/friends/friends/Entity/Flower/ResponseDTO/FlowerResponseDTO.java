@@ -15,6 +15,7 @@ public class FlowerResponseDTO {
     private String name;
     private boolean needWatter;
     private int daysUntilNextWatering;
+    private int wateringFrequencyDays;
 
     public static boolean calculateIfNeedWatter(ZonedDateTime lastWaterDate, int wateringFrequencyDays) {
         return !lastWaterDate.toLocalDate().plusDays(wateringFrequencyDays).isAfter(ZonedDateTime.now().toLocalDate());
@@ -33,6 +34,7 @@ public class FlowerResponseDTO {
         dto.setName(flower.getName());
         dto.setNeedWatter(calculateIfNeedWatter(flower.getWatter(), flower.getWateringFrequencyDays()));
         dto.setDaysUntilNextWatering(calculateDaysUntilNextWatering(flower.getWatter(), flower.getWateringFrequencyDays()));
+        dto.setWateringFrequencyDays(flower.getWateringFrequencyDays());
         return dto;
     }
 }

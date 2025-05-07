@@ -78,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Flower monstera = new Flower("Monstera", 1, pce);
         monstera.setWatter(ZonedDateTime.now().minusDays(3));
-        monstera.setCloudflareImageId("4b54e654-85bb-4ae3-383e-bf6e7f554c00");
+        monstera.setWateringFrequencyDays(7);
 
         Flower mint = new Flower("mint", 1, pce);
 
