@@ -33,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        /*
 
         boolean enableInitialization = true;
         if (!enableInitialization) return;
@@ -88,6 +89,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // 7. znovu ulož admina s napojenými homes
         accountRepository.save(admin);
+     */
     }
 }
 

@@ -9,16 +9,25 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
 
+  flyway:
+    baseline-on-migrate: false
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+      ddl-auto: none  # zůstává, pokud Hibernate nemá dělat nic
     properties:
+      # javax.persistence.schema-generation.* už nepotřebujeme, generování přes Hibernate jsme vypnuli
+      # javax:
+      #   persistence:
+      #     schema-generation:
+      #       scripts:
+      #         action: create
+      #         create-target: schema.sql
+      #         create-source: metadata
       hibernate:
-        format_sql: true
-
+        format_sql: true  # necháváme pro lepší čitelnost SQL výstupu
+    database-platform: org.hibernate.dialect.PostgreSQLDialect  # volitelné, Hibernate si dnes typ DB pozná sám
+    show-sql: true  # necháváme pro debugování
 
   security:
     user:
@@ -27,7 +36,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
 springdoc:
   api-docs:
