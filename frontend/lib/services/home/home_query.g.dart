@@ -6,7 +6,7 @@ part of 'home_query.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homesQueryHash() => r'76825fb20131896b83551cf4c2374f34044b3ef0';
+String _$homesQueryHash() => r'a0ba527ffffeb1c19d7c5fb8d72f2d6fd65028ed';
 
 /// See also [homesQuery].
 @ProviderFor(homesQuery)

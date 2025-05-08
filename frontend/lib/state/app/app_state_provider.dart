@@ -1,4 +1,4 @@
-import 'package:frontend/modules/core/dio/dio_client.dart';
+import 'package:frontend/modules/core/dio/functions.dart';
 import 'package:frontend/services/home/home_service.dart';
 import 'package:frontend/services/home/models/data/home_model.dart';
 import 'package:frontend/state/app/app_state_data.dart';
@@ -11,10 +11,17 @@ class AppState extends _$AppState {
   @override
   Future<AppStateData> build() async {
     ref.keepAlive();
-
-    final homes = await HomeService(dio).fetchHomes();
-
+    final homes = await HomeService(await getDio()).fetchHomes();
     return AppStateData(selectedHome: homes.isNotEmpty ? homes.first : null);
+  }
+
+  void init() async {
+    final homes = await HomeService(await getDio()).fetchHomes();
+    state = AsyncData(
+      state.value!.copyWith(
+        selectedHome: homes.isNotEmpty ? homes.first : null,
+      ),
+    );
   }
 
   void setHome(Home home) {

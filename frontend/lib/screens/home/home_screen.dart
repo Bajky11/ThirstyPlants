@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_query/cached_query.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:frontend/screens/_shared_widgets/add_home_dialog.dart';
+import 'package:frontend/screens/_shared_widgets/flower_edit_dialog.dart';
 import 'package:frontend/services/flower/flower_query.dart';
 import 'package:frontend/services/flower/models/data/flower_model.dart';
 import 'package:frontend/services/flower/models/dto/flower_response_dto.dart';
@@ -17,17 +20,45 @@ class HomeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appStateProvider).asData?.value;
 
-    return Column(
-      spacing: 32,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-          child: Row(children: [HomeSelect()]),
-        ),
+    showAddHomeDialog() =>
+        showDialog(context: context, builder: (context) => AddHomeDialog());
 
+    if (appState!.selectedHome == null) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 24,
+            children: [
+              Text(
+                "Start by creating yout first home",
+                style: TextStyle(fontSize: 40),
+                textAlign: TextAlign.center,
+              ),
+
+              SvgPicture.asset(
+                'lib/resources/images/undraw_back-home.svg',
+                height: 300,
+                fit: BoxFit.contain,
+              ),
+
+              ElevatedButton(
+                onPressed: () => showAddHomeDialog(),
+                child: Text("Create home"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 32),
             StreamBuilder<QueryState<List<FlowerResponseDTO>>>(
               stream: flowersQuery(appState!.selectedHome!.id).stream,
               builder: (context, snapshot) {
@@ -44,7 +75,35 @@ class HomeScreen extends HookConsumerWidget {
                 final flowers = state.data!;
 
                 if (flowers.isEmpty) {
-                  return Text("There are no flowers yet.");
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Column(
+                        spacing: 16,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "No plants here.",
+                            style: TextStyle(fontSize: 40),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            "Use the plus button below to add your first plant.",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SvgPicture.asset(
+                            'lib/resources/images/undraw_outdoors.svg',
+                            fit: BoxFit.contain,
+                            height: 200,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
 
                 final sortedFlowers =
@@ -58,16 +117,20 @@ class HomeScreen extends HookConsumerWidget {
                     flowers.where((e) => e.needWatter).length;
 
                 return Column(
-                  spacing: 48,
+                  spacing: 40,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FlowersStatusText(numOfFlowersThatNeedWater),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          right: 16,
+                          bottom: 80,
+                        ),
                         child: Row(
-                          spacing: 8,
+                          spacing: 12,
                           children:
                               sortedFlowers
                                   .map((f) => FlowerCard(flower: f))
@@ -79,21 +142,6 @@ class HomeScreen extends HookConsumerWidget {
                 );
               },
             ),
-
-            /*
-            // TEST
-            ElevatedButton(
-              onPressed: () async {
-                /* await notifier.updateFlower(
-              1,
-              name: 'slunecnice (Upraveno)',
-              watter: DateTime.now(),
-            );
-            */
-              },
-              child: const Text("Upravit květinu"),
-            ),
-            */
           ],
         ),
       ],
@@ -107,13 +155,13 @@ class FlowersStatusText extends HookConsumerWidget {
   const FlowersStatusText(this.numOfFlowersThatNeedWater, {super.key});
 
   List<TextSpan> get flowersNeedAttention => [
-    const TextSpan(text: "1 "),
-    const TextSpan(text: "plant "),
+    TextSpan(text: numOfFlowersThatNeedWater.toString()),
+    const TextSpan(text: " plants "),
     const TextSpan(
       text: "needs",
       style: TextStyle(fontWeight: FontWeight.bold),
     ),
-    const TextSpan(text: " your attention  "),
+    const TextSpan(text: " you!"),
   ];
 
   List<TextSpan> get flowersOk => [
@@ -127,7 +175,7 @@ class FlowersStatusText extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20 + 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16 + 4),
 
       child: RichText(
         text: TextSpan(
@@ -154,6 +202,10 @@ class HomeSelect extends HookConsumerWidget {
       return null;
     }, const []);
 
+    if (appState?.selectedHome == null) {
+      return SizedBox();
+    }
+
     return StreamBuilder<QueryState<List<Home>>>(
       stream: home.stream,
       builder: (context, snapshot) {
@@ -168,6 +220,11 @@ class HomeSelect extends HookConsumerWidget {
         }
 
         final homes = state.data!;
+
+        // TODO tady když to vymažu nastane chyba... občas.
+        if (homes.isEmpty) {
+          return SizedBox();
+        }
 
         return PopupMenuButton<Home>(
           initialValue: home.state.data?.first,
@@ -195,18 +252,13 @@ class HomeSelect extends HookConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
-              spacing: 12,
+              spacing: 8,
               children: [
-                Icon(Icons.home_rounded, size: 20),
-                Row(
-                  children: [
-                    Text(
-                      appState!.selectedHome?.name ?? "not selected",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Icon(Icons.arrow_drop_down, size: 20),
-                  ],
+                Text(
+                  appState!.selectedHome?.name ?? "not selected",
+                  style: TextStyle(fontSize: 16),
                 ),
+                Icon(Icons.arrow_drop_down, size: 16),
               ],
             ),
           ),
@@ -224,82 +276,115 @@ class FlowerCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appStateProvider).asData?.value;
 
-    return Card(
-      color: Color(0xFF445738),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SizedBox(
-        width: 300,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+    showFlowerEditDialog(FlowerResponseDTO flower) => showDialog(
+      context: context,
+      builder: (context) => FlowerEditDialog(flower: flower),
+    );
+
+    return GestureDetector(
+      onLongPress: () => showFlowerEditDialog(flower),
+      child: Card(
+        color: Color(0xFF445738),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: SizedBox(
+          width: 280,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Image.network(
+                  flower.cloudflareImageId != null
+                      ? "https://imagedelivery.net/UBZWeFQQoLk6g5JDQWgvdQ/${flower.cloudflareImageId}/public"
+                      : 'https://myuncommonsliceofsuburbia.com/wp-content/uploads/2023/07/snake-plant-4985304_1280-682x1024.jpg',
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  // Pokud je v db ID obrazku co už v cloudflare není, spadne to sem..
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.network(
+                      'https://myuncommonsliceofsuburbia.com/wp-content/uploads/2023/07/snake-plant-4985304_1280-682x1024.jpg',
+                      height: 300,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
               ),
-              child: Image.network(
-                'https://myuncommonsliceofsuburbia.com/wp-content/uploads/2023/07/snake-plant-4985304_1280-682x1024.jpg',
-                height: 300,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 12,
-                children: [
-                  Text(
-                    flower.name,
-                    style: TextStyle(fontSize: 32, color: Colors.white),
-                  ),
-                  
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          flower.needWatter
-                              ? () async {
-                                await updateFlowerMutation(
-                                      flower.id,
-                                      appState!.selectedHome!.id,
-                                    )
-                                    .mutate(
-                                      UpdateFlowerRequestDTO(
-                                        watter:  DateTime.now().toUtc(),
-                                      ),
-                                    )
-                                    .then((val) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Flower wattered'),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    //Scrolovatelný text
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        flower.name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed:
+                            flower.needWatter
+                                ? () async {
+                                  await updateFlowerMutation(
+                                        flower.id,
+                                        appState!.selectedHome!.id,
+                                      )
+                                      .mutate(
+                                        UpdateFlowerRequestDTO(
+                                          watter: DateTime.now().toUtc(),
                                         ),
-                                      );
-                                    })
-                                    .onError(
-                                      (error, stackTrace) => Future(() {
+                                      )
+                                      .then((val) {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
-                                            content: Text('Error'),
+                                            content: Text('Plant wattered'),
                                           ),
                                         );
-                                      }),
-                                    );
-                              }
-                              : null,
-                      child: Text("watter"),
+                                      })
+                                      .onError(
+                                        (error, stackTrace) => Future(() {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Error'),
+                                            ),
+                                          );
+                                        }),
+                                      );
+                                }
+                                : null,
+                        child: Text(
+                          flower.needWatter
+                              ? "watter"
+                              : "In ${flower.daysUntilNextWatering} days",
+                          style: TextStyle(
+                            color: flower.needWatter ? null : Colors.white38,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

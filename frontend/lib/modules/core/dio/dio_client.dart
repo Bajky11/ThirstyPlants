@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:frontend/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+/*
 final dio = Dio(BaseOptions(
-  baseUrl: 'http://localhost:8080/flowercare/api/',
+  //TODO: configure this dioclient outside of this module class, this getBaseUrl is from main.dart. It shuold not be! It hsould be independent!
+  baseUrl: getBaseUrl(),
   contentType: 'application/json',
 ))
   ..interceptors.add(InterceptorsWrapper(
@@ -42,3 +45,4 @@ final dio = Dio(BaseOptions(
       handler.next(e); // propaguj chybu dál
     },
   ));
+  */

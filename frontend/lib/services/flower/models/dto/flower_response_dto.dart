@@ -5,13 +5,20 @@ part 'flower_response_dto.g.dart';
 @JsonSerializable()
 class FlowerResponseDTO {
   final int id;
+  @JsonKey(defaultValue: null)
+  final String? cloudflareImageId;
   final String name;
   final bool needWatter;
+  final int daysUntilNextWatering;
+  final int wateringFrequencyDays;
 
   FlowerResponseDTO({
     required this.id,
+    required this.cloudflareImageId,
     required this.name,
     required this.needWatter,
+    required this.daysUntilNextWatering,
+    required this.wateringFrequencyDays
   });
 
   factory FlowerResponseDTO.fromJson(Map<String, dynamic> json) =>

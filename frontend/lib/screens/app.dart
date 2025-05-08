@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:frontend/screens/camera/camera_screen.dart';
+import 'package:frontend/screens/_shared_widgets/flower_edit_dialog.dart';
 import 'package:frontend/screens/home/home_screen.dart';
 import 'package:frontend/screens/settings/settings.dart';
-import 'package:frontend/services/flower/flower_query.dart';
-import 'package:frontend/services/flower/models/dto/add_flower_request_dto_model.dart';
 import 'package:frontend/state/app/app_state_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -19,9 +15,10 @@ class App extends HookConsumerWidget {
 
     final selectedIndex = useState(0);
 
-    final screens = [const HomeScreen(), SettingsScreen()];
+    final screens = [HomeScreen(), SettingsScreen()];
 
     void onItemTapped(int index) {
+      print(index);
       selectedIndex.value = index;
     }
 
@@ -35,7 +32,13 @@ class App extends HookConsumerWidget {
       data:
           (state) => Scaffold(
             backgroundColor: const Color(0xFFEEEEEE),
-            body: screens[selectedIndex.value],
+            appBar: AppBar(
+              title: Text(""),
+              centerTitle: false,
+              actionsPadding: EdgeInsets.symmetric(horizontal: 8),
+              actions: selectedIndex.value == 0 ? [HomeSelect()] : [],
+            ),
+            body: SafeArea(child: screens[selectedIndex.value]),
             bottomNavigationBar: AppBottomNavigationBar(
               selectedIndex: selectedIndex.value,
               onTap: onItemTapped,
@@ -57,8 +60,6 @@ class AppBottomNavigationBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appState = ref.watch(appStateProvider).asData?.value;
-
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(24),
@@ -70,6 +71,7 @@ class AppBottomNavigationBar extends HookConsumerWidget {
           alignment: Alignment.center,
           children: [
             BottomNavigationBar(
+              currentIndex: selectedIndex,
               onTap: onTap,
               backgroundColor: Colors.white,
               elevation: 0,
@@ -96,78 +98,9 @@ class AppBottomNavigationBar extends HookConsumerWidget {
             IconButton.filled(
               // TODO: nevím jestli tahle logika se sem uplně hodí.. zvaž to
               onPressed: () async {
-                final homeId = appState!.selectedHome!.id;
-                final formKey = GlobalKey<FormBuilderState>();
-
                 showDialog(
                   context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: const Text('New flower'),
-                        // ↙↙ zabalení + pevná max. šířka
-                        content: FormBuilder(
-                          key: formKey,
-                          child: SizedBox(
-                            width:
-                                300, // nastavte podle vkusu, nebo vynechte pro auto-šířku
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min, // ← DŮLEŽITÉ
-                              children: [
-                                FormBuilderTextField(
-                                  name: 'name',
-                                  decoration: const InputDecoration(
-                                    labelText: 'Flower name',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: FormBuilderValidators.required(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // actions vykreslí tlačítka pod obsahem; samy se přizpůsobí šířce dialogu
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (formKey.currentState?.saveAndValidate() ??
-                                  false) {
-                                final data = formKey.currentState!.value;
-
-                                await addFlowerMutation(homeId)
-                                    .mutate(
-                                      AddFlowerRequestDTO(
-                                        name: data['name'],
-                                        homeId: homeId,
-                                      ),
-                                    )
-                                    .then((val) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Flower created'),
-                                        ),
-                                      );
-                                      Navigator.of(context).pop();
-                                    })
-                                    .onError(
-                                      (error, stackTrace) => Future(() {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Error'),
-                                          ),
-                                        );
-                                        Navigator.of(context).pop();
-                                      }),
-                                    );
-                              }
-                            },
-                            child: const Text('Create'),
-                          ),
-                        ],
-                      ),
+                  builder: (context) => FlowerEditDialog(),
                 );
               },
               icon: const Icon(Icons.add),

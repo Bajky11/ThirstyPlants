@@ -3,8 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'config.dart';
 import 'models/account.dart';
-import '../../screens/login/login_screen.dart';
-import '../../screens/register/register_screen.dart';
 import 'state/account_provider.dart';
 import 'services/auth_service.dart';
 
@@ -15,41 +13,37 @@ class AuthModule {
     config = newConfig;
   }
 
-  static Widget loginScreen() => const LoginScreen();
-  static Widget registerScreen() => const RegisterScreen();
-
   static final accountProvider = accountProviderGlobal;
 
   static Future<(Account?, String?)> login(
     String email,
     String password,
-  ) async {
-    return AuthService.login(email, password);
+  ) {
+    return const AuthService().login(email, password);
   }
 
   static Future<(Account?, String?)> register(
     String email,
     String password,
-  ) async {
-    return AuthService.register(email, password);
+  ) {
+    return const AuthService().register(email, password);
+  }
+
+  static Future<Account?> loginWithToken() {
+    return const AuthService().loginWithToken();
   }
 
   static Future<void> logout(BuildContext context, WidgetRef ref) async {
-    await AuthService.logout();
+    await const AuthService().logout();
     ref.read(accountProviderGlobal.notifier).clear();
 
-    // Ověření, že prefs jsou vyčištěné, před navigací
     final prefs = await SharedPreferences.getInstance();
     while (prefs.getString('account') != null) {
-      await Future.delayed(Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 10));
     }
 
     if (context.mounted) {
       Navigator.pushReplacementNamed(context, "/login");
     }
-  }
-
-  static Future<Account?> loginWithToken() {
-    return AuthService.loginWithToken();
   }
 }

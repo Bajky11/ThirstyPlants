@@ -1,8 +1,7 @@
 import 'package:cached_query/cached_query.dart';
-import 'package:frontend/modules/core/dio/dio_client.dart';
+import 'package:frontend/modules/core/dio/functions.dart';
 import 'package:frontend/services/flower/flower_service.dart';
 import 'package:frontend/services/flower/models/dto/add_flower_request_dto_model.dart';
-import 'package:frontend/services/flower/models/data/flower_model.dart';
 import 'package:frontend/services/flower/models/dto/flower_response_dto.dart';
 import 'package:frontend/services/flower/models/dto/update_flower_request_dto_model.dart';
 
@@ -10,7 +9,7 @@ Query<List<FlowerResponseDTO>> flowersQuery(int homeId) =>
     Query<List<FlowerResponseDTO>>(
       key: ["flowers", homeId],
       queryFn: () async {
-        return await FlowerService(dio).fetchFlowersByHomeId(homeId);
+        return await FlowerService(await getDio()).fetchFlowersByHomeId(homeId);
       },
     );
 
@@ -22,7 +21,7 @@ Mutation<void, AddFlowerRequestDTO> addFlowerMutation(int homeId) {
     refetchQueries: [
       ['flowers', homeId],
     ],
-    queryFn: (dto) => FlowerService(dio).addFlower(dto),
+    queryFn: (dto) async => FlowerService(await getDio()).addFlower(dto),
   );
 }
 
@@ -34,6 +33,15 @@ Mutation<void, UpdateFlowerRequestDTO> updateFlowerMutation(
     refetchQueries: [
       ['flowers', homeId],
     ],
-    queryFn: (dto) => FlowerService(dio).updateFlower(flowerId, dto),
+    queryFn: (dto) async => FlowerService(await getDio()).updateFlower(flowerId, dto),
+  );
+}
+
+Mutation<void, int> deleteFlowerMutation(int homeId,) {
+  return Mutation(
+    refetchQueries: [
+      ['flowers', homeId],
+    ],
+    queryFn: (int flowerId) async => FlowerService(await getDio()).deleteFlower(flowerId),
   );
 }

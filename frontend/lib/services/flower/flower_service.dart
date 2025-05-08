@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/services/flower/models/dto/add_flower_request_dto_model.dart';
-import 'package:frontend/services/flower/models/data/flower_model.dart';
 import 'package:frontend/services/flower/models/dto/flower_response_dto.dart';
 import 'package:frontend/services/flower/models/dto/update_flower_request_dto_model.dart';
 
@@ -11,7 +10,9 @@ class FlowerService {
 
   Future<List<FlowerResponseDTO>> fetchFlowersByHomeId(int homeId) async {
     final res = await dio.get('/flower', queryParameters: {'homeId': homeId});
-    return (res.data as List).map((e) => FlowerResponseDTO.fromJson(e)).toList();
+    return (res.data as List)
+        .map((e) => FlowerResponseDTO.fromJson(e))
+        .toList();
   }
 
   Future<void> addFlower(AddFlowerRequestDTO request) async {
@@ -22,11 +23,14 @@ class FlowerService {
     int flowerId,
     UpdateFlowerRequestDTO request,
   ) async {
-    print(request.toJson());
-    final a = await dio.patch(
+    await dio.patch(
       '/flower',
       queryParameters: {'flowerId': flowerId},
       data: request.toJson(),
     );
+  }
+
+  Future<void> deleteFlower(int flowerId) async {
+    await dio.delete("/flower", queryParameters: {'flowerId': flowerId});
   }
 }
